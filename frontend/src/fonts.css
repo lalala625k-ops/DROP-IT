@@ -1,0 +1,65 @@
+/* Latin glyphs use the installed ISOCP_IV50 face; Chinese falls through to OPPO Sans. */
+@font-face {
+  font-family: "ISOCP_IV50";
+  src: local("ISOCP_IV50");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F, U+20A0-20CF;
+}
+
+@font-face {
+  font-family: "Lil Grotesk";
+  src: local("Lil Grotesk Regular"), url("/fonts/LilGrotesk-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lil Grotesk";
+  src: local("Lil Grotesk Medium"), url("/fonts/LilGrotesk-Medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lil Grotesk";
+  src: local("Lil Grotesk Bold"), url("/fonts/LilGrotesk-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lil Grotesk";
+  src: local("Lil Grotesk Black"), url("/fonts/LilGrotesk-Black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OPPO Sans";
+  src: local("OPPO Sans"), local("OPPOSans R");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OPPO Sans";
+  src: local("OPPO Sans Medium"), local("OPPOSans M");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OPPO Sans";
+  src: local("OPPO Sans Bold"), local("OPPOSans B");
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+}
