@@ -18,16 +18,20 @@ DROP-IT/
 │   └── services/             # 存储、文件、解析、OCR、来源识别与恢复逻辑
 ├── desktop/
 │   ├── app.py                # pywebview 窗口与本地服务管理
+│   ├── runtime_setup.py      # 创建会话前检测并准备 Windows 运行组件
 │   ├── icons/                # 桌面图标
 │   ├── Template/             # 公共操作说明模板
 │   └── *.py                  # 原生截图、文件来源、窗口及启动会话模块
 ├── extensions/
 │   └── edge-image-source/    # 可选的 Edge 图片来源扩展
 ├── scripts/
+│   ├── bootstrap/           # 源码环境准备及共用 Windows 运行组件检查
+│   ├── installer/           # NSIS 一键安装模板
 │   ├── build_dropit_installer.py # 组装白名单发布包和 NSIS 安装程序
 │   ├── create_example.py     # 生成不含个人内容的操作说明模板
 │   └── pyinstaller_hooks/    # 打包依赖收集配置
 ├── build_desktop.ps1         # 前端、后端、桌面壳与发布包构建入口
+├── Start-DropIt.bat          # 源码一键准备环境并启动桌面窗口
 ├── local_site.pyw            # 本机浏览器模式启动器
 └── package.json              # 开发、构建和桌面命令
 ```
@@ -44,6 +48,8 @@ DROP-IT/
 | 桌面截图来源 | `desktop/screenshot_*.py`、`source_*.py`、`browser_snapshot.py` |
 | 本地文件卡与预览 | `desktop/file_*.py`、`pdf_previews.py` 及前端对应卡片组件 |
 | 浏览器拖图来源扩展 | `extensions/edge-image-source/` |
+| 源码启动与运行组件 | `Start-DropIt.bat`、`scripts/bootstrap/`、`desktop/runtime_setup.py` |
+| Windows 发布包与安装 | `build_desktop.ps1`、`scripts/build_dropit_installer.py`、`scripts/installer/dropit.nsi` |
 
 `backend/services/scrapers/experimental/` 是实际注册使用的解析器目录，属于应用源码。截图、快照、资源缓存和恢复模块同样属于运行功能。
 

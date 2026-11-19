@@ -1,9 +1,9 @@
 @echo off
 setlocal
-set "PORTABLE=%~dp0release\Drop-it 0.1"
-if not exist "%PORTABLE%\DropIt.exe" (
-    echo Build the portable edition first: npm run desktop:dist
-    pause
-    exit /b 1
+set "PORTABLE=%~dp0release\Drop-it 0.1.1"
+if exist "%PORTABLE%\DropIt.exe" (
+    start "" "%PORTABLE%\DropIt.exe"
+    exit /b 0
 )
-start "" explorer.exe "%PORTABLE%"
+call "%~dp0Start-DropIt.bat" %*
+exit /b %errorlevel%

@@ -110,6 +110,13 @@ def stop_services(server, vite_process=None):
             server.should_exit = True
 
 
+def pause_after_error():
+    # The one-click launcher captures diagnostics and owns retry/cancel.
+    # Waiting for invisible console input would leave that launcher stuck.
+    if not os.environ.get('DROPIT_BOOTSTRAPPED') and sys.stdin and sys.stdin.isatty():
+        input('Press Enter to exit...')
+
+
 class WindowApi(FileSourceApi):
     """Small bridge used by the frameless WebView window controls."""
 
@@ -173,6 +180,8 @@ class WindowApi(FileSourceApi):
             command.append("--open-file")
         if "--dev" in sys.argv and not IS_FROZEN:
             command.append("--dev")
+        elif "--production" in sys.argv and not IS_FROZEN:
+            command.append("--production")
         subprocess.Popen(
             command,
             cwd=str(Path(sys.executable).resolve().parent if IS_FROZEN else PROJECT_ROOT),
@@ -182,6 +191,9 @@ class WindowApi(FileSourceApi):
 
 
 def start_desktop():
+    from desktop.runtime_setup import ensure_runtime
+    if not ensure_runtime():
+        return
     from desktop.startup_session import prepare_launch
     board_id = prepare_launch(is_child_board)
     try:
@@ -190,14 +202,14 @@ def start_desktop():
     except ImportError as e:
         print(f"[Error] Missing dependency: {e}")
         print("Please ensure pywebview and uvicorn are installed.")
-        input("Press Enter to exit...")
+        pause_after_error()
         sys.exit(1)
 
     force_dev = "--dev" in sys.argv
     dev_server_active = vite_available()
     # Each development board uses current source with a proxy to its own
     # backend. A static child can otherwise keep obsolete clipboard code.
-    use_dev_mode = force_dev or (not IS_FROZEN and dev_server_active)
+    use_dev_mode = force_dev or (not IS_FROZEN and '--production' not in sys.argv and dev_server_active)
 
     # 1. Manage backend server
     # Each launch owns its backend, including the first development window.
@@ -271,42 +283,43 @@ def start_desktop():
         print("=" * 60)
     else:
         target_url = f"{server_url}/?desktop=1{board_query}"
-        window_title = "Drop-it 0.1"
+        window_title = "DROP-IT 0.1.1"
         print("=" * 60)
         print(f"【独立运行模式】服务地址: {server_url}")
         print("在当前窗口内随时可按 [F5] 刷新重载，无需重启窗口！")
         print("如需体验代码保存即生效的无感热更新，请运行 desktop/run_dev.bat")
         print("=" * 60)
 
-    # 3. Create a frameless Edge WebView2 window. The React shell supplies the
-    # three lightweight controls because the native title bar is intentionally hidden.
-    window_api = WindowApi()
-    webview.settings['DRAG_REGION_SELECTOR'] = '.pywebview-drag-region'
-    webview.settings['DRAG_REGION_DIRECT_TARGET_ONLY'] = True
-    window = webview.create_window(
-        title=window_title,
-        url=target_url,
-        js_api=window_api,
-        width=1400,
-        height=900,
-        min_size=(480, 320),
-        resizable=True,
-        frameless=True,
-        easy_drag=False,
-        shadow=False,
-        background_color="#D6D3CB",
-        text_select=True,
-    )
-    window_api._window = window
-    from desktop.file_source_api import attach_file_sources
-    attach_file_sources(window_api, window)
-
-    from desktop.close_checkpoint import attach_close_checkpoint
-    attach_close_checkpoint(window)
-    from desktop.window_chrome import attach_window_chrome
-    window_api._chrome = attach_window_chrome(window)
-
+    window_exit_code = 0
     try:
+        # 3. Create a frameless Edge WebView2 window. The React shell supplies the
+        # three lightweight controls because the native title bar is intentionally hidden.
+        window_api = WindowApi()
+        webview.settings['DRAG_REGION_SELECTOR'] = '.pywebview-drag-region'
+        webview.settings['DRAG_REGION_DIRECT_TARGET_ONLY'] = True
+        window = webview.create_window(
+            title=window_title,
+            url=target_url,
+            js_api=window_api,
+            width=1400,
+            height=900,
+            min_size=(480, 320),
+            resizable=True,
+            frameless=True,
+            easy_drag=False,
+            shadow=False,
+            background_color="#D6D3CB",
+            text_select=True,
+        )
+        window_api._window = window
+        from desktop.file_source_api import attach_file_sources
+        attach_file_sources(window_api, window)
+
+        from desktop.close_checkpoint import attach_close_checkpoint
+        attach_close_checkpoint(window)
+        from desktop.window_chrome import attach_window_chrome
+        window_api._chrome = attach_window_chrome(window)
+
         # Keep Vite HMR independent from pywebview's debug flag. In Edge
         # WebView2, pywebview maps debug=True to AreBrowserAcceleratorKeysEnabled,
         # which lets Ctrl+H open browser history before React can handle the
@@ -315,10 +328,11 @@ def start_desktop():
     except Exception as e:
         print(f"[Desktop] Webview window error: {e}")
         traceback.print_exc()
-        input("Press Enter to exit...")
+        window_exit_code = 1
+        pause_after_error()
     finally:
         stop_services(server, vite_proc)
-        sys.exit(0)
+        sys.exit(window_exit_code)
 
 
 if __name__ == "__main__":
@@ -327,5 +341,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"[Fatal Error]: {e}")
         traceback.print_exc()
-        input("Press Enter to exit...")
+        pause_after_error()
         sys.exit(1)

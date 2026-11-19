@@ -1,10 +1,4 @@
 @echo off
 setlocal
-title DropIt - Live Dev
-echo ========================================================
-echo       Infinite Canvas Note - Live Dev (Vite HMR)
-echo ========================================================
-echo.
-cd /d "%~dp0.."
-python "%~dp0app.py" --dev
-if %errorlevel% neq 0 pause
+call "%~dp0..\Start-DropIt.bat" -Dev %*
+exit /b %errorlevel%

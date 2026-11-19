@@ -1,102 +1,83 @@
-# Windows 桌面与浏览器使用指南
+# Windows 桌面使用与发布
 
-DROP-IT 的桌面版使用 pywebview 和 Edge WebView2。以下命令均在项目根目录执行。
+## 普通用户：下载后打开
 
-## 环境与安装
+支持 Windows 10/11 x64。首次下载组件需要联网。
 
-- Windows 10/11 x64，安装 Microsoft Edge WebView2 Runtime。
-- Node.js 18+。
-- Python 3.10+；如需制作安装包，使用 Python 3.12+。
+Windows N/KN 精简媒体版本需要先通过 Windows 可选功能安装 Media Feature Pack；当前自动准备流程不安装此系统可选功能。ARM64 和 32 位系统不在本版支持范围。
 
-建议先创建并激活独立 Python 虚拟环境，再安装依赖：
+| 下载内容 | 用户操作 | 程序自动完成 |
+| --- | --- | --- |
+| 正式 Setup | 双击安装程序 | 检测运行组件、安装到用户目录、创建快捷方式、打开画布 |
+| 源码 ZIP | 完整解压，双击 `Start-DropIt.bat` | 准备专用 Python/Node 环境、安装依赖、构建界面、打开画布 |
+| 成品 Portable ZIP | 完整解压，双击 `DropIt.exe` | 检测必需运行组件、打开画布 |
 
-```powershell
-python -m pip install -r backend/requirements-desktop.txt
-npm --prefix frontend ci
-```
+源码入口不需要预装 Git、Python、Node 或手动输入命令。下载 Python 和 Node 时校验固定 SHA256；Python 运行依赖也带 SHA256 锁定。已有兼容工具可复用，Python 包放入独立虚拟环境，不修改全局 PATH。源码与依赖未变时，后续启动复用已完成的准备。
 
-## 启动与更新
+WebView2、.NET Framework 与 VC++ x64 运行库已有时直接复用；缺少时下载微软官方组件，验证发布者签名后安装，并重新检测。系统要求权限确认或重启时，按提示完成。网络失败可重试或取消。安装器自身使用原生窗口，不依赖 WebView2 显示进度。
 
-| 场景 | 命令或入口 |
+Setup 默认安装到 `%LOCALAPPDATA%\Drop-it`。免安装版需保留 `DropIt.exe`、`pinboard-service.exe` 和 `bootstrap/`，不能只复制一个 EXE。覆盖安装前先保存画板并关闭正在运行的 DropIt；安装失败时关闭旧程序后重试。
+
+## 源码启动选项
+
+| 场景 | 入口 |
 | --- | --- |
-| 开发与前端热更新 | `npm run dev` 或 `desktop/run_dev.bat` |
-| 构建前端 | `npm run build` |
-| 运行已构建界面 | `npm run desktop:start`、`启动桌面版.bat` 或 `desktop/run.bat` |
-| 更新本地前端构建 | `desktop/update.bat`，完成后在窗口按 `F5` |
-| 本机浏览器模式 | 先构建前端，再运行 `open_site.bat` |
+| 一键运行 | `Start-DropIt.bat` 或“启动桌面版.bat” |
+| 开发热更新 | `Start-DropIt.bat -Dev` 或 `desktop/run_dev.bat` |
+| 仅准备环境 | `Start-DropIt.bat -PrepareOnly` |
+| 重新安装依赖并构建 | `Start-DropIt.bat -Repair` |
 
-开发模式自动启动本地后端与 Vite 服务。桌面 Python 模块更新后需要完整关闭并重新启动；前端热更新无法加载原生模块的修改。
+`-PrepareOnly` 不启动窗口；`-Repair` 保留用户画板。Python 模块修改后完整重启桌面程序。前端源码或锁文件变更后，普通入口会重新构建。`F5` 刷新界面，`Ctrl+R` 是恢复卡片尺寸。
 
-桌面默认打开独立空白画板。异常退出后如有可恢复内容，程序提供恢复选择。公共操作说明模板位于 `desktop/Template/Template一.drop`，可通过“文件 → 打开”选用。
-
-## 本机浏览器模式
-
-```powershell
-npm run build
-.\open_site.bat
-```
-
-浏览器入口在本机 `http://localhost:5173/` 提供构建后的前端和 API，只监听回环地址。关闭浏览器窗口后，本地服务可以继续运行；电脑重启后需再次启动。若端口已经被开发服务或其他程序使用，先关闭占用它的服务。
-
-浏览器版复用画布、保存与恢复功能，但没有桌面原生截图监听、原生来源打开等完整能力。打开独立画板时需要浏览器允许当前站点弹出窗口。
+环境、下载缓存与准备日志位于 `%LOCALAPPDATA%\DropIt\bootstrap`，各源码目录使用独立作用域。控制台提示具体日志位置；运行组件日志为该目录下的 `logs/runtime-setup.log`。隔离验证可设置 `DROPIT_BOOTSTRAP_HOME`，普通用户无需配置。
 
 ## 保存与恢复
 
-- `Ctrl+S` 保存，`Ctrl+Shift+S` 另存为；首次保存选择 `.drop` 文件路径。
-- 自动暂存用于恢复编辑状态，正式 `.drop` 文件在手动保存时更新。
-- “文件 → 恢复”或设置中的恢复入口可查看可用记录，并在独立画板中恢复。
-- `.drop` 包含画布对象、关系、视口、图钉与可用本地图片。远程图片尚未缓存成功时，不能保证离线可用。
-- 本地文件卡只记录原文件引用；PSD、PDF、PPTX 等原文档不会自动打包进画板。移动原文件或换电脑后可能需要重新关联。
+桌面默认打开空白画板，异常退出后提供可用的恢复记录。公共模板只含操作说明，位于 `desktop/Template/Template一.drop`（源码）或 `Files/Template`（发行版）。
+
+- `Ctrl+S` 保存，`Ctrl+Shift+S` 另存为，首次选择 `.drop` 路径。
+- 自动暂存用于恢复编辑，正式 `.drop` 在手动保存时更新。
+- “文件 → 恢复”或设置恢复入口在独立画板打开恢复内容。
+- `.drop` 保存布局、关系、视口、图钉及已缓存图片；未缓存的在线资源不保证离线可用。
+- 本地文件卡只引用原文件；PSD、PDF、PPTX 不会复制进画板，移动后需要重新关联。
 
 | 内容 | 默认位置 |
 | --- | --- |
-| 主运行数据、图片与配置 | `%LOCALAPPDATA%\InfiniteCanvasNote` |
-| 手动保存 | 程序目录的 `Files/Save` |
-| 自动暂存与恢复 | 程序目录的 `Files/Temporary` |
-| 公共示例 | 程序目录的 `Files/Template` |
+| 运行数据、图片、配置 | `%LOCALAPPDATA%\InfiniteCanvasNote` |
+| 个人保存、暂存 | 程序目录 `Files/Save`、`Files/Temporary` |
+| 公共模板 | 程序目录 `Files/Template` |
 
-程序目录不可写时，文件目录回退到 `%LOCALAPPDATA%\InfiniteCanvasNote\Files`。独立画板使用自己的运行数据作用域。保存和暂存位置可在“设置 → 通用设置 → 文件”中调整。
+目录不可写时，Files 回退到 `%LOCALAPPDATA%\InfiniteCanvasNote\Files`；也可在设置中调整。卸载保留个人 Files、运行数据及共享运行组件。
 
-## 截图与来源
+## 来源与可选服务
 
-桌面程序运行时，可尝试为微信 `Alt+A` 或 Windows `Win+Shift+S` 的矩形截图关联来源。网页来源支持 Edge 和 Chrome；本地文档来源适配包括 Photoshop、WPS PDF 和 WPS 演示。
+桌面截图来源支持有限范围的 Edge、Chrome、Photoshop 和 WPS 场景。正常匹配失败时，已有回退可能附上浏览器候选或最近网页，使用前应核对。可选浏览器扩展见[扩展说明](../extensions/edge-image-source/README.md)。
 
-来源识别取决于页面、窗口、选区和系统接口。正常匹配失败时，现有回退策略可能使用本次浏览器候选或本次运行中最近成功的网页，来源可能不准确；使用前应核对。对 Firefox、其他截图工具、编辑后的截图和任意应用版本不作保证。
-
-卡片通常先点击选中，再点击来源入口打开。文件卡底部路径可在资源管理器中定位原文件；原文件移动或删除后需重新关联。浏览器图片来源扩展是独立可选功能，见 [扩展说明](../extensions/edge-image-source/README.md)。
-
-## 可选视觉模型
-
-```powershell
-Copy-Item .reverse-image.example.json .reverse-image.local.json
-```
-
-在新文件中填写自己的服务配置，或设置相应 `REVERSE_IMAGE_*` 环境变量。模型辅助识别会发送待识别图片到配置的服务商，未配置时不影响正常启动。凭据只放在被忽略的本机配置中，不要提交到 Git。
+模型辅助图片识别不是启动依赖。需要时复制 `.reverse-image.example.json` 为 `.reverse-image.local.json`，填写自己的服务配置，或设置 `REVERSE_IMAGE_*` 环境变量。模型请求会发送图片给配置的服务商。本机凭据必须保持 Git 忽略。
 
 ## 构建发布包
 
-需要 Python 3.12+、上述源码依赖、默认位置安装的 7-Zip，以及 NSIS。NSIS 编译器未在常用安装位置时，可用 `PINBOARD_MAKENSIS` 指定 `makensis.exe` 的完整路径。
+开发机使用 Python 3.14.6、Node.js 24.19.0、NSIS。普通终端用户不需要这些打包工具。NSIS 不在默认位置时用 `PINBOARD_MAKENSIS` 指定 `makensis.exe`。
 
 ```powershell
+python -m pip install -r backend/requirements-build.txt
+npm --prefix frontend ci
 npm run desktop:dist
 ```
 
-该命令构建前端，再使用 PyInstaller 生成后端与桌面程序，最后组装：
+构建先生成前端，再用 PyInstaller 冻结后端和桌面壳。最终产物：
 
-- `release/Drop-it 0.1/`：免安装目录。
-- `release/Drop-it-0.1-Portable.zip`：免安装 ZIP。
-- `release/Drop-it-Setup-0.1.exe`：安装程序。
+- `release/Drop-it 0.1.1/`：成品免安装目录。
+- `release/Drop-it-0.1.1-Portable.zip`：免安装 ZIP。
+- `release/Drop-it-Setup-0.1.1.exe`：默认自动安装并运行的 Setup。
+- `release/SHA256SUMS.txt`：产物校验值。
 
-发布载荷限定为两份程序、使用说明和指定公共模板，另创建空白 Save / Temporary 目录。构建不会扫描并带入个人画板。已含个人保存或恢复文件的旧发布目录会被拒绝覆盖，应选择新的发布子目录。
+ZIP 用 Python 标准库生成，不需要 7-Zip。载荷明确限定为程序、公共模板、说明和四个运行组件脚本；不会扫描或打包个人数据。构建器拒绝覆盖含个人画板或未知文件的发布目录。
 
-打包后用户运行 `DropIt.exe` 无需另装 Python 或 Node.js，但仍需要系统 WebView2 Runtime。安装程序默认安装到当前用户的 `%LOCALAPPDATA%\Drop-it`，卸载保留用户文件与运行数据。
+部署验证可使用安装器 `/S /NOAUTORUN /NOSHORTCUTS /NOREGISTRY /D=目标目录`。`/S` 不自动打开程序；`/NOREGISTRY` 同时禁用快捷方式，仅用于隔离测试。退出码 `3010` 表示需要重启后重试，其他非零码表示失败。
 
-## 常见问题
+## 本机浏览器模式（手动开发入口）
 
-- **缺少前端界面**：先执行 `npm run build`。
-- **修改未显示**：前端构建后按 `F5`；Python 改动后完整重启。
-- **浏览器入口启动失败**：检查端口占用和 `%LOCALAPPDATA%\InfiniteCanvasNote\local_site.log`。
-- **Vite 启动失败**：检查 `%LOCALAPPDATA%\InfiniteCanvasNote\logs` 下的开发服务日志。
-- **安装包构建失败**：确认使用 Python 3.12+，并已安装 7-Zip、NSIS 和完整 Python 依赖。
+浏览器入口仍需系统可用的 Python 依赖与前端构建。执行 `npm run build` 后运行 `open_site.bat`，访问 `http://localhost:5173/`。此入口不提供桌面截图监听及完整的原生文件能力，也不属于上述自动准备流程。
 
-目录职责见 [ARCHITECTURE.md](../ARCHITECTURE.md)，项目许可见 [LICENSE](../LICENSE)。
+架构见 [ARCHITECTURE.md](../ARCHITECTURE.md)，技术路径见 [tech.md](../tech.md)，许可见 [LICENSE](../LICENSE)。

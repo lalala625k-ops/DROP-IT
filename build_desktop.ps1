@@ -7,7 +7,7 @@
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 
-Write-Host "=== Drop-it 0.1 · Windows 桌面版与免安装版构建 ===" -ForegroundColor Cyan
+Write-Host "=== Drop-it 0.1.1 · Windows 桌面版与免安装版构建 ===" -ForegroundColor Cyan
 Write-Host "提示：图片与用户数据已与编译打包流程完全解耦（存储在 %LOCALAPPDATA%\InfiniteCanvasNote\data），大量图片不会影响编译速度。" -ForegroundColor Gray
 
 if (-not $SkipFrontend) {
@@ -59,6 +59,7 @@ try {
         --collect-all pypdfium2_raw `
         --copy-metadata pypdfium2 `
         --hidden-import webview.platforms.edgechromium `
+        --hidden-import desktop.runtime_setup `
         --exclude-module webview.platforms.cef `
         --exclude-module webview.platforms.gtk `
         --exclude-module webview.platforms.qt `
@@ -70,7 +71,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw '桌面启动程序编译失败' }
 } finally { Pop-Location }
 
-Write-Host "`n[4/4] 正在组装 Drop-it 0.1 免安装版与桌面安装程序..." -ForegroundColor Yellow
+Write-Host "`n[4/4] 正在组装 Drop-it 0.1.1 免安装版与桌面安装程序..." -ForegroundColor Yellow
 Push-Location $root
 try {
     if ($ReleaseDir) {
@@ -82,5 +83,6 @@ try {
 } finally { Pop-Location }
 
 $outputDir = if ($ReleaseDir) { $ReleaseDir } else { Join-Path $root 'release' }
-Write-Host "`n=== 构建完成！安装程序：$(Join-Path $outputDir 'Drop-it-Setup-0.1.exe') ===" -ForegroundColor Green
-Write-Host "免安装目录：$(Join-Path $outputDir 'Drop-it 0.1')" -ForegroundColor Green
+Write-Host "`n=== 构建完成！安装程序：$(Join-Path $outputDir 'Drop-it-Setup-0.1.1.exe') ===" -ForegroundColor Green
+Write-Host "免安装目录：$(Join-Path $outputDir 'Drop-it 0.1.1')" -ForegroundColor Green
+Write-Host "校验清单：$(Join-Path $outputDir 'SHA256SUMS.txt')" -ForegroundColor Green

@@ -18,30 +18,17 @@ DROP-IT is an infinite canvas for collecting text, images, web links and referen
 
 “Any content” describes the goal of bringing collections together. Automatic parsing and source recognition depend on platform access, authentication, page restrictions and capture methods. Complete metadata is not guaranteed for every site or link; existing content and available links are retained when parsing fails.
 
-## Run from source
+## One-click launch (Windows 10/11 x64)
 
-The current desktop launcher targets **Windows 10/11 x64** with **Microsoft Edge WebView2 Runtime**. Install **Node.js 18+** and **Python 3.10+**. Building Windows installers requires **Python 3.12+**.
+**Installer:** [Download Setup](https://github.com/lalala625k-ops/DROP-IT/releases/download/v0.1.1/Drop-it-Setup-0.1.1.exe) and open it. Setup prepares missing Windows components, installs for the current user, creates shortcuts, and opens the canvas automatically.
 
-Run these commands from the project directory. A dedicated Python virtual environment is recommended.
+**Source:** [Download the source ZIP](https://github.com/lalala625k-ops/DROP-IT/archive/refs/heads/main.zip), extract it completely, and double-click **`Start-DropIt.bat`**. The first run prepares Python, Node.js, isolated dependencies and the frontend, then opens the app. Later runs reuse the environment and rebuild when source or dependency files change. No Git installation or manual commands are required.
 
-```powershell
-git clone https://github.com/lalala625k-ops/DROP-IT.git
-cd DROP-IT
-python -m pip install -r backend/requirements-desktop.txt
-npm --prefix frontend ci
-npm run dev
-```
+**Portable application:** [Download the Portable ZIP](https://github.com/lalala625k-ops/DROP-IT/releases/download/v0.1.1/Drop-it-0.1.1-Portable.zip), extract it, and open `DropIt.exe`. Keep the backend executable and `bootstrap` folder beside it.
 
-Development mode starts the desktop window, local backend and Vite hot reload. Restart the desktop app after changing native Python modules.
+All three paths check WebView2, .NET Framework and the x64 VC++ runtime, using Microsoft's official installers when missing. Initial component downloads require internet access. Windows may require security confirmation, elevation or a restart. Failed downloads can be retried. Optional model credentials are not needed to start the app.
 
-To use the built frontend:
-
-```powershell
-npm run build
-npm run desktop:start
-```
-
-After building, `open_site.bat` opens the canvas in a local browser. Browser mode does not provide native screenshot monitoring or all desktop file-source features. See the [desktop and browser guide](desktop/README.md) for details.
+The source launcher uses Python 3.14.6 and Node.js 24.19.0 with verified downloads and hashed Python dependencies. An installed standard x64 CPython 3.14 with patch version 3.14.6 or later may be reused; Python packages live in a dedicated virtual environment. The global PATH is unchanged. See the [desktop guide](desktop/README.md) for details and logs.
 
 ## Common controls
 
@@ -65,15 +52,11 @@ This repository contains the application, public assets and an instructional tem
 
 Visual model assistance is optional. Copy `.reverse-image.example.json` to `.reverse-image.local.json` and supply your own service configuration, or use the `REVERSE_IMAGE_*` environment variables. The canvas and local OCR can run without model credentials. Using model-assisted recognition sends the image to the configured provider. Local configuration is ignored by Git; do not put credentials in source files or public documentation.
 
-## Build Windows packages
+## Development and Windows packages
 
-Use Python 3.12+, install the dependencies above, and install **7-Zip** and **NSIS**. The build expects 7-Zip in its default installation location. Set `PINBOARD_MAKENSIS` if the NSIS compiler is installed elsewhere.
+Run `Start-DropIt.bat -Dev` for frontend hot reload. Restart after changing Python modules.
 
-```powershell
-npm run desktop:dist
-```
-
-The local `release/` directory receives a portable directory, a ZIP and a Windows installer. Packaging includes only designated application files and the public template, excluding personal boards and drafts. This repository is distributed primarily as source; see the [packaging guide](desktop/README.md#构建发布包).
+Packaging is a developer task. Use Python 3.14.6, Node.js 24.19.0, NSIS and `backend/requirements-build.txt`. Run `npm run desktop:dist` to create Setup, Portable ZIP and SHA256 checksums under `release/`. ZIP creation uses Python; 7-Zip is not required. See the [packaging guide](desktop/README.md#构建发布包).
 
 ## Architecture and license
 

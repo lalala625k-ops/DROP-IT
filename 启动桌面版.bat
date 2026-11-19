@@ -1,4 +1,4 @@
 @echo off
 setlocal
-cd /d "%~dp0desktop"
-call run.bat
+call "%~dp0Start-DropIt.bat" %*
+exit /b %errorlevel%

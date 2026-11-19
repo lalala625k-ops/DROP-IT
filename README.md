@@ -18,30 +18,17 @@ DROP-IT 是一个用于收集和整理文本、图片、网页链接与本地文
 
 “任意内容”表达统一收集的目标。网页解析和自动来源识别受平台接口、登录状态、访问限制与截图方式影响，不能保证每个平台或每条链接都能自动取得完整内容。解析失败时保留已有内容和可用链接。
 
-## 源码运行
+## 一键运行（Windows 10/11 x64）
 
-当前桌面入口面向 **Windows 10/11 x64**，需要 Microsoft Edge WebView2 Runtime。准备 **Node.js 18+** 和 **Python 3.10+**；如需制作安装包，使用 **Python 3.12+**。
+**正式安装版：** [下载 Setup](https://github.com/lalala625k-ops/DROP-IT/releases/download/v0.1.1/Drop-it-Setup-0.1.1.exe)，双击后自动检查运行组件、安装并打开画布。默认安装到当前用户目录，创建桌面和开始菜单快捷方式。
 
-在项目根目录执行，建议使用独立的 Python 虚拟环境：
+**源码一键运行：** [下载源码 ZIP](https://github.com/lalala625k-ops/DROP-IT/archive/refs/heads/main.zip)，完整解压后双击根目录的 **`Start-DropIt.bat`**（或“启动桌面版.bat”）。首次自动准备 Python、Node.js、隔离依赖和前端界面，随后打开软件；以后复用已准备环境，源码或依赖改变时自动重建。无需预装 Git 或手动输入命令。
 
-```powershell
-git clone https://github.com/lalala625k-ops/DROP-IT.git
-cd DROP-IT
-python -m pip install -r backend/requirements-desktop.txt
-npm --prefix frontend ci
-npm run dev
-```
+**成品免安装版：** [下载 Portable ZIP](https://github.com/lalala625k-ops/DROP-IT/releases/download/v0.1.1/Drop-it-0.1.1-Portable.zip)，完整解压后打开 `DropIt.exe`。保留相邻的后端程序和 `bootstrap` 文件夹。
 
-`npm run dev` 启动桌面窗口、本地后端与 Vite 热更新。修改 Python 原生模块后，需要完整重启桌面窗口。
+三种入口都会检查 WebView2、.NET Framework 和 VC++ x64 运行库，缺少时运行微软官方安装程序。首次下载组件需要联网。Windows 安全确认、管理员确认或重启要求需按系统提示操作；网络失败可重试。可选视觉模型不属于启动依赖。
 
-运行构建后的界面：
-
-```powershell
-npm run build
-npm run desktop:start
-```
-
-也可在构建后运行 `open_site.bat`，用本机浏览器访问画布。浏览器模式没有桌面原生截图监听和完整文件来源能力。详细操作见 [桌面与浏览器使用指南](desktop/README.md)。
+源码入口使用 Python 3.14.6、Node.js 24.19.0，并校验工具下载及 Python 依赖。已有符合要求的 Python 3.14 常规 x64 版本（补丁版本不低于 3.14.6）可复用；Python 包始终放入独立虚拟环境，不修改全局 PATH。完整使用方式与日志位置见 [桌面指南](desktop/README.md)。
 
 ## 常用操作
 
@@ -65,15 +52,11 @@ npm run desktop:start
 
 视觉模型辅助识别是可选能力。需要时将 `.reverse-image.example.json` 复制为 `.reverse-image.local.json`，填写自己的服务配置；也可使用 `REVERSE_IMAGE_*` 环境变量。未配置时可以正常启动和使用画布、本地 OCR 等功能。启用模型识别会将待识别图片发送给配置的服务商。本机配置已被 Git 忽略，不要将密钥写入源码或公开文档。
 
-## 构建 Windows 发布包
+## 开发与制作发布包
 
-使用 Python 3.12+，安装上述依赖，并安装 **7-Zip** 与 **NSIS**。7-Zip 使用默认安装位置；NSIS 编译器可通过 `PINBOARD_MAKENSIS` 指定。
+开发热更新可运行 `Start-DropIt.bat -Dev`。前端修改实时更新；Python 模块修改后重新启动。
 
-```powershell
-npm run desktop:dist
-```
-
-产物写入本机 `release/`，包括免安装目录、ZIP 与安装程序。构建只收集指定程序和公共模板，不收集个人保存与暂存。当前仓库以源码分发为主；构建细节见 [桌面指南](desktop/README.md#构建发布包)。
+制作安装包属于开发侧工作。使用 Python 3.14.6、Node.js 24.19.0、NSIS，以及 `backend/requirements-build.txt` 中的打包依赖。运行 `npm run desktop:dist`，会在 `release/` 生成 Setup、Portable ZIP 和 SHA256 校验文件。ZIP 由 Python 生成，无需安装 7-Zip。详见 [构建说明](desktop/README.md#构建发布包)。
 
 ## 项目结构与许可
 
