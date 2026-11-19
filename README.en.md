@@ -8,12 +8,14 @@ DROP-IT is a cross-platform tool for collecting reference material. Capture web 
 
 ## Features
 
-- Collect pasted text, images and links, or drag in web content and local files. Text cards support Markdown.
-- Turn web links into visual cards with titles, summaries and available covers.
-- Pan, zoom, select, group, collapse and connect content through origin nodes and parent-child links.
+- **One-click collecting**:
+  - **Links**: drag in a link to create a collection card. Site-specific parsing makes the saved page's content visible at a glance.
+  - **Images**: drag in a web image with its source link attached, then click to open the original link.
+  - **Screenshots**: capture exactly the content you want from any webpage. Paste it to identify its original link and title and create a collection card.
+- **Easy organizing**: move and resize image cards, group them, and build parent-child relationships into a tree. Both cards and groups support titles and custom branch colors.
 - Navigate with full-text search, a minimap, an overview and numbered pins.
 - Work in multiple board windows, save `.drop` files, and recover local drafts.
-- Associate supported Windows screenshots with web pages or local source files.
+- **Local files and text**: drag in local files, or type and paste text. Text supports Markdown.
 
 ## Common controls
 
@@ -22,13 +24,14 @@ DROP-IT is a cross-platform tool for collecting reference material. Capture web 
 | Pan / zoom | Space + drag or middle-button drag / mouse wheel |
 | New card / search | `Ctrl+N` / `Ctrl+K` |
 | Group / create origin | `Ctrl+G` / `Ctrl+J` |
+| Create a parent-child relationship | Hold `Ctrl+Shift` and left-drag the child card or group onto a parent card, group or origin |
 | Save / save as | `Ctrl+S` / `Ctrl+Shift+S` |
 | Overview / enlarge minimap | `Shift+1` / hold `M` |
 | Command menu | Hold the right mouse button, move to an action, then release |
 
 ## Download and install
 
-All three options support **Windows 10/11 x64** and check for **WebView2, .NET Framework and the x64 VC++ runtime**, downloading Microsoft's official components over the internet when needed. Follow any Windows confirmation or restart prompts.
+All four options support **Windows 10/11 x64**. The launcher or installer checks for **WebView2, .NET Framework and the x64 VC++ runtime**, downloading Microsoft's official components over the internet when needed. Follow any Windows confirmation or restart prompts.
 
 ### 1. Installer (recommended)
 
@@ -47,6 +50,22 @@ All three options support **Windows 10/11 x64** and check for **WebView2, .NET F
 - **Download:** [Drop-it-0.1.1-Portable.zip](https://github.com/lalala625k-ops/DROP-IT/releases/download/v0.1.1/Drop-it-0.1.1-Portable.zip), containing the packaged application and runtime resources.
 - **Run:** extract the whole archive and double-click `DropIt.exe`. Keep it in the same folder as `pinboard-service.exe` and `bootstrap`.
 - **Environment:** no Python, Node.js or Git installation is required. The first launch prepares missing Windows components.
+
+### 4. Ask an agent to install
+
+Copy the prompt below to an agent that can download files and execute commands on your computer. It will use the official installer to check the environment, verify the download, install the app and confirm startup.
+
+```text
+Please install and launch DROP-IT on this computer:
+https://github.com/lalala625k-ops/DROP-IT
+
+1. Before installation, check Windows 10/11 x64, built-in Windows PowerShell 5.1, internet access and write access to the current user's directory. Prepare the Media Feature Pack first on Windows N/KN. If the system is unsupported, explain why and stop installation.
+2. Use the official GitHub API or an already-installed gh CLI to find this repository's latest stable release. Read its installation notes, download Drop-it-Setup-*.exe and SHA256SUMS.txt from the same release, and verify the installer's SHA256.
+3. The installer bundles Python runtime dependencies; Python, Node.js and Git do not need to be installed separately. Let Setup detect and prepare WebView2, .NET Framework 4.6.2 or later, and the x64 VC++ runtime. VC++ must be version 14.40.33816.0 or later.
+4. Install for the current user and preserve existing boards, files and settings. If DROP-IT is running, ask me to save and close it first. You may use /S for silent installation. Wait for completion and check the exit code: 0 means success, 3010 requires a restart, and other nonzero codes indicate failure.
+5. Explain any Windows security, administrator or restart prompt and let me handle it. Do not restart automatically. On failure, retain logs and explain the next step.
+6. A /S installation does not launch the app. After successful installation, open %LOCALAPPDATA%\Drop-it\DropIt.exe, or the actual path if a different location was specified. Confirm that the canvas opens, then report the installed version, location and verification result. State clearly if startup could not be verified.
+```
 
 Windows N/KN editions require the Media Feature Pack separately; ARM64 and 32-bit systems are not supported. See the [desktop guide](desktop/README.md) for more instructions and the [release page](https://github.com/lalala625k-ops/DROP-IT/releases/tag/v0.1.1) for version details and checksums.
 
